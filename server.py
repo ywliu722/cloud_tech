@@ -18,17 +18,18 @@ client_list = []
 
 def clients(connection, addr):
     usr = connection.recv(1024).decode()
-    usr = f'{usr}@{addr[0]}:{addr[1]}'
-    print(f'{usr} connected!')
-    broadcast(connection, f'{usr} connected!')
+    usr_addr = f'{usr}@{addr[0]}:{addr[1]}'
+    print(f'{usr_addr} connected!')
+    broadcast(connection, f'[SYSTEM] {usr} connected!')
     while True:
         msg = connection.recv(1024).decode()
         if msg == "exit" or msg == "exitexit" or msg == "":
-            broadcast(connection, f'{usr} disconnected!')
+            print(f'{usr_addr} disconnected!')
+            broadcast(connection, f'[SYSTEM] {usr} disconnected!')
             disconnect(connection)
             break
+        print(f'{usr_addr}: {msg}')
         msg = usr + ": " + msg
-        print(msg)
         broadcast(connection, msg)
 
 def broadcast(connection, msg):
