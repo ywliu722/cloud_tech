@@ -1,6 +1,18 @@
 import sys
 import socket
 import threading
+import hashlib
+import ssl
+from Crypto.Cipher import AES
+
+keyFile = "priv.pem"
+certFile = "cert.crt"
+
+KEY = hashlib.sha256(b"passwd").digest()
+
+IV = b"abcdefghijklmnop"
+obj_enc = AES.new(KEY, AES.MODE_CFB, IV)
+obj_dec = AES.new(KEY, AES.MODE_CFB, IV)
 
 client_list = []
 
@@ -44,9 +56,10 @@ server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 server.bind((server_IP, server_port))
 server.listen(255)
+ssl_server = ssl.wrap_socket(server, keyfile=keyFile, certfile=certFile, server_side=True)
 
 while True:
-    connection, addr = server.accept()
+    connection, addr = ssl_server.accept()
     client_list.append(connection)
     client = threading.Thread(target=clients, args=(connection, addr))
     client.start()
