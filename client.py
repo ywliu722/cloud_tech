@@ -2,15 +2,7 @@ import sys
 from time import sleep
 import socket
 import select
-import hashlib
 import ssl
-from Crypto.Cipher import AES
-
-KEY = hashlib.sha256(b"passwd").digest()
-
-IV = b"abcdefghijklmnop"
-obj_enc = AES.new(KEY, AES.MODE_CFB, IV)
-obj_dec = AES.new(KEY, AES.MODE_CFB, IV)
 
 
 if len(sys.argv) != 3:
@@ -28,6 +20,7 @@ inputs = [ssl_server, sys.stdin]
 
 usr = input('Enter your username: ')
 ssl_server.send(usr.encode())
+print(ssl_server.recv(1024).decode())
 
 while True:
     input_socket, output_socket, error_socket = select.select(inputs, [], [])
@@ -39,7 +32,7 @@ while True:
             msg = input()
             ssl_server.send(msg.encode())
             if msg == "exit":
-                ssl_server.send(msg.encode())
+                #ssl_server.send(msg.encode())
                 sleep(0.5)
                 ssl_server.close()
                 print('Disconnect from the chat room!')

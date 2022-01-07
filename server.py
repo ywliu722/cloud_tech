@@ -1,18 +1,10 @@
 import sys
 import socket
 import threading
-import hashlib
 import ssl
-from Crypto.Cipher import AES
 
 keyFile = "priv.pem"
 certFile = "cert.crt"
-
-KEY = hashlib.sha256(b"passwd").digest()
-
-IV = b"abcdefghijklmnop"
-obj_enc = AES.new(KEY, AES.MODE_CFB, IV)
-obj_dec = AES.new(KEY, AES.MODE_CFB, IV)
 
 client_list = []
 
@@ -20,12 +12,13 @@ def clients(connection, addr):
     usr = connection.recv(1024).decode()
     usr_addr = f'{usr}@{addr[0]}:{addr[1]}'
     print(f'{usr_addr} connected!')
-    broadcast(connection, f'[SYSTEM] {usr} connected!')
+    connection.send(f'\033[7mWelcome {usr}!\033[0m'.encode())
+    broadcast(connection, f'\033[91m[SYSTEM]\033[0m {usr} connected!')
     while True:
         msg = connection.recv(1024).decode()
         if msg == "exit" or msg == "exitexit" or msg == "":
             print(f'{usr_addr} disconnected!')
-            broadcast(connection, f'[SYSTEM] {usr} disconnected!')
+            broadcast(connection, f'\033[91m[SYSTEM]\033[0m {usr} disconnected!')
             disconnect(connection)
             break
         print(f'{usr_addr}: {msg}')
